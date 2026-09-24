@@ -1,0 +1,634 @@
+---
+import StripeBase from '../layouts/StripeBase.astro';
+import Sunburst from '../components/v3/Sunburst.astro';
+import HeroWave from '../components/v3/HeroWave.astro';
+import { EXAMPLES } from '../engine/examples';
+
+// Line-icon per example id, drawn inline (set:html) so each card gets a glyph
+// without shipping an icon lib. 24×24, currentColor stroke — matches the nav SVGs.
+const ICONS: Record<string, string> = {
+  saas: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>',
+  marketplace: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v1a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0V6l-3-4Z"/><path d="M4 10v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9"/></svg>',
+  chess: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l3.5 3L12 4l4.5 7L20 8v8H4z"/><path d="M4 20h16"/></svg>',
+};
+---
+
+<StripeBase
+  title="mockforge — realistic test data, at the scale you need"
+  description="Paste a schema. Get realistic, reproducible, referentially valid rows. Export to SQL, JSON or CSV. The Stripe-grade data workbench."
+>
+  <!-- ══ Nav ══ -->
+  <header class="nav">
+    <div class="stx-container nav-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        mockforge
+      </a>
+      <nav class="nav-links">
+        <a href="#product">Product</a>
+        <a href="#examples">Examples</a>
+        <a href="#engine">Engine</a>
+        <a href="#how">How it works</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="stx-btn stx-btn-primary" href="/app">
+          Open the app
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ Framed page: vertical rails descend from the nav through the whole page ══ -->
+  <div class="framed">
+
+  <!-- ══ Hero ══ -->
+  <section class="hero">
+    <HeroWave />
+    <div class="stx-container hero-inner">
+      <div class="hero-copy">
+        <span class="stx-badge">
+          <span class="dot" aria-hidden="true"></span>
+          Deterministic by seed
+        </span>
+        <h1 class="hero-h1">
+          Realistic test data,<br />
+          <span class="hero-em">at the scale you need.</span>
+        </h1>
+        <p class="hero-sub">
+          Paste a database schema. mockforge maps every column to a realistic
+          generator, resolves foreign keys in dependency order, and streams
+          reproducible rows you can export to SQL, JSON or CSV.
+        </p>
+        <div class="hero-cta">
+          <a class="stx-btn stx-btn-primary stx-btn-lg" href="/app">
+            Start generating
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="stx-btn stx-btn-secondary stx-btn-lg" href="#engine">See the engine</a>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">1M</span>
+          <span class="hero-stat-label">rows per export · resolved in the browser, nothing leaves your machine</span>
+        </div>
+      </div>
+
+      <!-- Floating frosted product card over the aurora -->
+      <div class="hero-visual">
+        <div class="mock">
+          <div class="mock-head">
+            <span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="mock-title">users · preview</span>
+            <span class="mock-badge">seed 42</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-row mock-row-head">
+              <span>id</span><span>full_name</span><span>email</span><span>role</span>
+            </div>
+            <div class="mock-row"><span class="m-num">1</span><span>Ava Mitchell</span><span>ava.m@hey.io</span><span class="m-pill">admin</span></div>
+            <div class="mock-row"><span class="m-num">2</span><span>Liam García</span><span>liam@fold.dev</span><span class="m-pill">member</span></div>
+            <div class="mock-row"><span class="m-num">3</span><span>Noah Petrov</span><span>noah.p@qb.co</span><span class="m-pill">member</span></div>
+            <div class="mock-row"><span class="m-num">4</span><span>Mia Nakamura</span><span>mia@arc.app</span><span class="m-pill">viewer</span></div>
+            <div class="mock-row"><span class="m-num">5</span><span>Ethan Brooks</span><span>ethan@nine.io</span><span class="m-pill">member</span></div>
+          </div>
+          <div class="mock-foot">
+            <span class="m-live"><i aria-hidden="true"></i>Referentially valid</span>
+            <span class="m-export">Export SQL · JSON · CSV</span>
+          </div>
+        </div>
+        <div class="chip chip-1">FK → orders.user_id ✓</div>
+        <div class="chip chip-2">1,000 rows · 12ms</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Trust strip ══ -->
+  <section class="strip">
+    <div class="stx-container">
+      <p class="strip-label">Reads the schema you already have</p>
+      <div class="strip-dialects">
+        <span>PostgreSQL</span><span class="strip-sep">·</span>
+        <span>MySQL</span><span class="strip-sep">·</span>
+        <span>SQLite</span><span class="strip-sep">·</span>
+        <span>MariaDB</span><span class="strip-sep">·</span>
+        <span>auto-detected</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Sample schemas — one-click, real-world starting points ══ -->
+  <section class="schemas" id="examples">
+    <div class="stx-container">
+      <div class="sec-head">
+        <span class="sec-eyebrow">Start in one click</span>
+        <h2 class="sec-h2">Don't have a schema handy? Borrow a real one.</h2>
+        <p class="sec-lead">Three production-shaped schemas, resolved live in your browser. Pick one and land in the workbench with referentially-valid rows already flowing.</p>
+      </div>
+      <div class="schema-grid">
+        {EXAMPLES.map((ex) => (
+          <a class="schema-card" href={`/app?example=${ex.id}`}>
+            <div class="schema-top">
+              <span class="schema-icon" aria-hidden="true" set:html={ICONS[ex.id]}></span>
+              <span class="schema-domain">{ex.domain}</span>
+              <span class="schema-run" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </span>
+            </div>
+            <h3>{ex.name}</h3>
+            <p>{ex.tagline}</p>
+            <div class="schema-tables">
+              {ex.tables.map((t, i) => (
+                <Fragment>
+                  {i > 0 && <span class="schema-join" aria-hidden="true">→</span>}
+                  <span class="schema-tbl">{t}</span>
+                </Fragment>
+              ))}
+            </div>
+            <div class="schema-flex"><span class="schema-flex-dot" aria-hidden="true"></span>{ex.highlight}</div>
+            <span class="schema-cta">Generate this schema
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Feature cards ══ -->
+  <section class="features" id="product">
+    <div class="stx-container">
+      <div class="sec-head">
+        <span class="sec-eyebrow">Why mockforge</span>
+        <h2 class="sec-h2">Data that behaves like production, on demand.</h2>
+        <p class="sec-lead">Three properties turn seed data into something you can actually build and test against.</p>
+      </div>
+      <div class="feat-grid">
+        <article class="feat">
+          <span class="feat-expand" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2v-4M21 9V5a2 2 0 0 0-2-2h-4M14 10l7-7M10 14l-7 7"/></svg>
+          </span>
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+          </div>
+          <h3>Realistic</h3>
+          <p>Names, emails, addresses, prices and timestamps that read like the real thing — locale-aware, type-aware, never <code>lorem ipsum</code>.</p>
+        </article>
+        <article class="feat">
+          <span class="feat-expand" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2v-4M21 9V5a2 2 0 0 0-2-2h-4M14 10l7-7M10 14l-7 7"/></svg>
+          </span>
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>
+          </div>
+          <h3>Reproducible</h3>
+          <p>Every value is derived from a seed. The same seed gives byte-identical data on every run and every machine — perfect for CI.</p>
+        </article>
+        <article class="feat">
+          <span class="feat-expand" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2v-4M21 9V5a2 2 0 0 0-2-2h-4M14 10l7-7M10 14l-7 7"/></svg>
+          </span>
+          <div class="feat-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h12M15 7l-3-3M15 7l-3 3M21 17H9M9 17l3-3M9 17l3 3"/></svg>
+          </div>
+          <h3>Referential</h3>
+          <p>Foreign keys point at rows that exist. Tables are generated in dependency order so joins hold and constraints pass.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Engine / type-map — dark banded section ══ -->
+  <section class="engine" id="engine">
+    <!-- Soft-white re-draw of the page rails: the dark band paints above the frost
+         rails (z-index), so we redraw them faintly here, aligned to the same container. -->
+    <div class="engine-rails" aria-hidden="true"><div class="stx-container rails-inner rails-inner-dark"></div></div>
+    <div class="stx-container engine-inner">
+      <div class="engine-copy">
+        <span class="sec-eyebrow sec-eyebrow-light">The type-map</span>
+        <h2 class="engine-h2">It reads your columns and picks the right generator.</h2>
+        <p class="engine-lead">
+          <code>email</code> becomes an address. <code>price NUMERIC(10,2)</code>
+          becomes money. <code>created_at</code> becomes a plausible timestamp.
+          Every inference is a dropdown you can override — one column at a time.
+        </p>
+        <ul class="engine-list">
+          <li><span aria-hidden="true">→</span> 40+ built-in generators across text, numbers, dates &amp; identifiers</li>
+          <li><span aria-hidden="true">→</span> Column names &amp; SQL types both feed the inference</li>
+          <li><span aria-hidden="true">→</span> Override any mapping, regenerate instantly</li>
+        </ul>
+      </div>
+      <div class="engine-map">
+        <div class="map-row"><span class="map-col">email</span><span class="map-arrow" aria-hidden="true">→</span><span class="map-gen">Email address</span></div>
+        <div class="map-row"><span class="map-col">price</span><span class="map-arrow" aria-hidden="true">→</span><span class="map-gen">Amount (2dp)</span></div>
+        <div class="map-row"><span class="map-col">created_at</span><span class="map-arrow" aria-hidden="true">→</span><span class="map-gen">Past datetime</span></div>
+        <div class="map-row"><span class="map-col">country_code</span><span class="map-arrow" aria-hidden="true">→</span><span class="map-gen">ISO country</span></div>
+        <div class="map-row"><span class="map-col">user_id</span><span class="map-arrow" aria-hidden="true">→</span><span class="map-gen">FK → users.id</span></div>
+        <div class="map-row"><span class="map-col">is_active</span><span class="map-arrow" aria-hidden="true">→</span><span class="map-gen">Boolean</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Backbone / stats over the radial sunburst ══ -->
+  <section class="backbone">
+    <div class="stx-container backbone-inner">
+      <span class="sec-eyebrow">Built for scale</span>
+      <h2 class="sec-h2">The backbone of your test data.</h2>
+      <p class="sec-lead">From a handful of preview rows to a million-row export — same seed, same result, resolved entirely in your browser.</p>
+      <div class="stats-grid">
+        <div class="stat"><span class="stat-num">40+</span><span class="stat-label">column generators</span></div>
+        <div class="stat"><span class="stat-num">4</span><span class="stat-label">SQL dialects</span></div>
+        <div class="stat"><span class="stat-num">1M</span><span class="stat-label">rows per export</span></div>
+        <div class="stat"><span class="stat-num">0</span><span class="stat-label">rows leave your browser</span></div>
+      </div>
+    </div>
+    <Sunburst />
+  </section>
+
+  <!-- ══ How it works ══ -->
+  <section class="how" id="how">
+    <div class="stx-container">
+      <div class="sec-head">
+        <span class="sec-eyebrow">Three steps</span>
+        <h2 class="sec-h2">Schema in, data out.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="feat-expand" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2v-4M21 9V5a2 2 0 0 0-2-2h-4M14 10l7-7M10 14l-7 7"/></svg>
+          </span>
+          <span class="step-n">01</span>
+          <h3>Paste your schema</h3>
+          <p>Drop a <code>CREATE TABLE</code> statement. The dialect is detected automatically.</p>
+        </div>
+        <div class="step">
+          <span class="feat-expand" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2v-4M21 9V5a2 2 0 0 0-2-2h-4M14 10l7-7M10 14l-7 7"/></svg>
+          </span>
+          <span class="step-n">02</span>
+          <h3>Review the type-map</h3>
+          <p>Check the inferred generators and tune any column with a dropdown.</p>
+        </div>
+        <div class="step">
+          <span class="feat-expand" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2v-4M21 9V5a2 2 0 0 0-2-2h-4M14 10l7-7M10 14l-7 7"/></svg>
+          </span>
+          <span class="step-n">03</span>
+          <h3>Generate &amp; export</h3>
+          <p>Set a seed and row count, preview instantly, export to SQL, JSON or CSV.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA ══ -->
+  <section class="cta">
+    <div class="stx-container">
+      <div class="cta-card">
+        <div class="cta-aurora" aria-hidden="true"></div>
+        <div class="cta-content">
+          <h2>Fill your dev database in the next minute.</h2>
+          <p>No signup. No data leaves your browser. Just paste a schema and go.</p>
+          <a class="stx-btn stx-btn-primary stx-btn-lg" href="/app">
+            Open the generator
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Footer ══ -->
+  <footer class="foot">
+    <div class="stx-container foot-inner">
+      <div class="foot-brand">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true"></span>
+          mockforge
+        </a>
+        <p>Realistic, reproducible, referential test data — generated entirely in your browser.</p>
+      </div>
+      <div class="foot-links">
+        <a href="/app">Generator</a>
+        <a href="#examples">Examples</a>
+        <a href="#engine">Engine</a>
+      </div>
+    </div>
+  </footer>
+
+    <!-- Rails last in the DOM so they paint above every section's background; the
+         hero wave (z 1) and hero card (z 2) still sit above them at the top. -->
+    <div class="rails" aria-hidden="true"><div class="stx-container rails-inner"></div></div>
+  </div>
+  <!-- ══ /Framed page ══ -->
+
+  <script>
+    // Nav is transparent over the hero wave; add its frosted backdrop once the
+    // page scrolls, so it stays legible over the content below the hero.
+    const nav = document.querySelector('.nav');
+    if (nav) {
+      const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 24);
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+  </script>
+
+  <style>
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 40;
+      /* Transparent at the top so the hero wave bleeds up behind it (Stripe-style);
+         gains its frosted backdrop once scrolled past the hero (see .is-scrolled). */
+      background: transparent;
+      /* No painted border here — the hairline under the nav is drawn by the rails
+         overlay (behind the hero wave) so the wave art isn't cut. Once scrolled,
+         .is-scrolled adds the frosted backdrop + border over solid content below. */
+      border-bottom: 1px solid transparent;
+      transition: background 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
+    }
+    .nav.is-scrolled {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: saturate(180%) blur(16px);
+      border-bottom-color: var(--frost);
+    }
+    .nav-inner { display: flex; align-items: center; gap: 28px; height: 64px; }
+    .brand { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 500; letter-spacing: -0.02em; color: var(--ink); }
+    .brand-mark { width: 20px; height: 20px; border-radius: 6px; background: linear-gradient(150deg, var(--indigo), var(--amethyst)); }
+    .nav-links { display: flex; gap: 24px; margin-left: 8px; }
+    .nav-links a { font-size: 14px; font-weight: 600; color: var(--ink); transition: color 0.15s ease; }
+    .nav-links a:hover { color: var(--indigo); }
+    .nav-actions { display: flex; align-items: center; gap: 18px; margin-left: auto; }
+
+    /* ── Framed page: horizontal + vertical guide rails from the nav ── */
+    /* .framed wraps every section (hero → footer). The .rails overlay is the LAST
+       child, so at z-index 0 it paints over each section's own background while the
+       hero wave (z 1) and hero card (z 2) — both positive z — still cover it up top.
+       Starting the box at 64px (the nav height) anchors the lines at the nav's base
+       and they run the full height of the page. */
+    .framed { position: relative; }
+    .rails { position: absolute; top: 64px; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; border-top: 1px solid var(--frost); }
+    .rails-inner {
+      height: 100%;
+      border-left: 1px solid var(--frost);
+      border-right: 1px solid var(--frost);
+    }
+
+    /* ── Hero ── */
+    /* margin-top:-64px pulls the hero (and its wave) up under the 64px nav so the
+       wave shows behind it; padding-top absorbs the same 64px so the copy stays put. */
+    .hero { position: relative; overflow: hidden; margin-top: -64px; padding: 152px 0 96px; }
+    .hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; padding-left: 80px;}
+    .hero-copy { max-width: 540px; }
+    .stx-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--indigo); }
+    .hero-h1 { font-size: 56px; line-height: 1.03; letter-spacing: -0.03em; font-weight: 300; margin: 22px 0 0; }
+    .hero-em { color: var(--indigo); }
+    .hero-sub { margin-top: 22px; font-size: 19px; line-height: 1.5; color: var(--steel); font-weight: 400; }
+    .hero-cta { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+    .hero-stat { display: flex; align-items: baseline; gap: 12px; margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--frost); }
+    .hero-stat-num { font-size: 34px; font-weight: 300; letter-spacing: -0.03em; color: var(--ink); }
+    .hero-stat-label { font-size: 13.5px; line-height: 1.4; color: var(--slate); max-width: 300px; }
+
+    /* Floating product mock */
+    .hero-visual { position: relative; z-index: 2; justify-self: end; width: 100%; max-width: 480px; }
+    .mock {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: saturate(160%) blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 18px; overflow: hidden;
+      box-shadow: var(--shadow-float);
+    }
+    .mock-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--frost); background: rgba(255,255,255,0.6); }
+    .mock-dots { display: inline-flex; gap: 6px; }
+    .mock-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--frost); }
+    .mock-dots i:first-child { background: #ffbdc8; }
+    .mock-title { font-family: var(--font-mono); font-size: 12px; color: var(--slate); }
+    .mock-badge { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--indigo); background: var(--periwinkle); border: 1px solid var(--lilac-border); padding: 3px 8px; border-radius: 999px; }
+    .mock-body { padding: 6px 6px; font-family: var(--font-mono); font-size: 12px; }
+    .mock-row { display: grid; grid-template-columns: 28px 1.1fr 1.2fr 0.8fr; gap: 8px; align-items: center; padding: 8px 12px; border-radius: 8px; color: var(--ink); }
+    .mock-row:nth-child(even) { background: var(--mist); }
+    .mock-row-head { color: var(--slate); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .mock-row-head:nth-child(even) { background: none; }
+    .m-num { color: var(--indigo); }
+    .m-pill { font-size: 10px; color: var(--steel); background: var(--frost); padding: 2px 7px; border-radius: 999px; justify-self: start; }
+    .mock-foot { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--frost); font-size: 11.5px; }
+    .m-live { display: inline-flex; align-items: center; gap: 7px; color: var(--success); font-weight: 500; }
+    .m-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgba(36,180,126,0.16); }
+    .m-export { color: var(--slate); font-family: var(--font-mono); }
+    .chip {
+      position: absolute; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink);
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+      border: 1px solid var(--frost); border-radius: 10px; padding: 8px 12px;
+      box-shadow: var(--shadow-card);
+      animation: float 6s ease-in-out infinite;
+    }
+    .chip-1 { top: 8%; left: -46px; color: var(--success); }
+    .chip-2 { bottom: 12%; right: -38px; color: var(--indigo); animation-delay: -3s; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+
+    /* ── Trust strip (merged into the features band below) ── */
+    /* border-top draws the full-width hairline where the hero wave ends, Stripe-style.
+       No bottom border: the strip flows straight into the features section as one
+       mist band, so the vertical rails pass through uninterrupted. */
+    .strip { padding: 20px 0 8px; background: var(--mist); border-top: 1px solid var(--frost); }
+    .strip-label { text-align: center; font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--smoke); }
+    .strip-dialects { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 14px; font-size: 17px; color: var(--steel); font-weight: 400; }
+    .strip-sep { color: var(--lilac-border); }
+
+    /* ── Section heads ── */
+    .sec-head { max-width: 640px; margin: 0 auto; text-align: center; }
+    .sec-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--indigo); }
+    .sec-eyebrow-light { color: var(--amethyst); }
+    .sec-h2 { font-size: 40px; line-height: 1.06; letter-spacing: -0.028em; font-weight: 300; margin-top: 14px; }
+    .sec-lead { margin-top: 16px; font-size: 18px; line-height: 1.5; color: var(--steel); }
+
+    /* ── Sample schemas (white band, clickable cards) ── */
+    /* Non-positioned like .features so the page rails paint through, behind cards. */
+    .schemas { padding: 92px 0; background: var(--white); border-top: 1px solid var(--frost); }
+    .schema-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 52px; }
+    .schema-card {
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
+      background:
+        radial-gradient(130% 110% at 100% 0%, var(--periwinkle) 0%, transparent 48%),
+        var(--white);
+      border: 1px solid var(--frost); border-radius: var(--r-card); padding: 26px;
+      box-shadow: 0 6px 20px -14px rgba(16, 24, 40, 0.22);
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .schema-card:hover {
+      border-color: var(--lilac-border);
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px -22px rgba(83, 58, 253, 0.4);
+    }
+    .schema-top { display: flex; align-items: center; gap: 10px; }
+    .schema-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 11px; background: var(--periwinkle); color: var(--indigo); border: 1px solid var(--lilac-border); }
+    .schema-domain { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--slate); }
+    .schema-run {
+      margin-left: auto; display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 9px; color: var(--indigo);
+      background: var(--periwinkle); border: 1px solid var(--lilac-border);
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+    .schema-card:hover .schema-run { background: var(--indigo); color: #fff; transform: translateX(2px); }
+    .schema-card h3 { font-size: 21px; font-weight: 500; margin-top: 20px; letter-spacing: -0.02em; }
+    .schema-card p { margin-top: 10px; font-size: 15px; line-height: 1.55; color: var(--steel); }
+    /* FK chain of table names */
+    .schema-tables { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; }
+    .schema-tbl { font-family: var(--font-mono); font-size: 12px; color: var(--ink); background: var(--mist); border: 1px solid var(--frost); border-radius: 7px; padding: 4px 9px; }
+    .schema-join { color: var(--amethyst); font-size: 13px; }
+    .schema-flex { display: flex; align-items: center; gap: 9px; margin-top: 16px; font-size: 12.5px; color: var(--slate); }
+    .schema-flex-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--indigo); box-shadow: 0 0 0 3px rgba(83, 58, 253, 0.14); flex: none; }
+    .schema-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--frost); font-size: 14.5px; font-weight: 600; color: var(--indigo); }
+    .schema-cta svg { transition: transform 0.15s ease; }
+    .schema-card:hover .schema-cta svg { transform: translateX(3px); }
+
+    /* ── Features (Stripe bento cards) ── */
+    /* No position:relative here — it would put the section in the rails' paint layer
+       and (being later in the DOM) hide the vertical guides. Left non-positioned, the
+       rails paint over the mist background, behind the cards. */
+    .features { padding: 96px 0; background: var(--mist); }
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 52px; }
+    .feat {
+      position: relative; overflow: hidden;
+      background:
+        radial-gradient(120% 100% at 100% 0%, var(--periwinkle) 0%, transparent 46%),
+        var(--white);
+      border: 1px solid var(--frost); border-radius: var(--r-card); padding: 32px;
+      box-shadow: 0 6px 20px -14px rgba(16, 24, 40, 0.22);
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .feat:hover {
+      border-color: var(--lilac-border);
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px -22px rgba(83, 58, 253, 0.4);
+    }
+    /* Corner "expand" glyph, like the maximise icon on Stripe's bento tiles. */
+    .feat-expand {
+      position: absolute; top: 16px; right: 16px;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 9px;
+      background: var(--periwinkle); color: var(--indigo);
+      border: 1px solid var(--lilac-border);
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+    .feat:hover .feat-expand,
+    .step:hover .feat-expand { background: var(--indigo); color: var(--white); transform: rotate(0deg) scale(1.04); }
+    .feat-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 11px; background: var(--periwinkle); color: var(--indigo); border: 1px solid var(--lilac-border); }
+    .feat h3 { font-size: 21px; font-weight: 500; margin-top: 20px; letter-spacing: -0.02em; }
+    .feat p { margin-top: 10px; font-size: 15px; line-height: 1.55; color: var(--steel); }
+    .feat code { font-family: var(--font-mono); font-size: 0.86em; color: var(--indigo); background: var(--periwinkle); padding: 1px 5px; border-radius: 4px; }
+
+    /* ── Engine (dark band) ── */
+    /* The band sits ABOVE the page rails (position + z-index) so the stark frost
+       lines don't bleed through the dark background; .engine-rails then redraws
+       them as a faint white hairline — the subtle Stripe look over dark. */
+    .engine { position: relative; z-index: 1; overflow: hidden; background: var(--deep-violet); color: #fff; padding: 96px 0; margin: 0; }
+    .engine-rails { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+    .rails-inner-dark { border-color: rgba(255, 255, 255, 0.1); }
+    .engine-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 0.9fr; gap: 56px; align-items: center; }
+    .engine-h2 { color: #fff; font-size: 38px; line-height: 1.08; letter-spacing: -0.028em; font-weight: 300; margin-top: 14px; }
+    .engine-lead { margin-top: 18px; font-size: 17px; line-height: 1.6; color: #c3caea; }
+    .engine-lead code { font-family: var(--font-mono); font-size: 0.86em; color: #d7d3ff; background: rgba(127,113,230,0.24); padding: 1px 6px; border-radius: 4px; }
+    .engine-list { list-style: none; padding: 0; margin: 26px 0 0; display: flex; flex-direction: column; gap: 12px; }
+    .engine-list li { display: flex; gap: 12px; font-size: 15px; color: #dfe3f4; }
+    .engine-list span { color: var(--amethyst); }
+    .engine-map { display: flex; flex-direction: column; gap: 8px; }
+    .map-row {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px; padding: 13px 16px; font-family: var(--font-mono); font-size: 13.5px;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .map-row:hover { background: rgba(127,113,230,0.16); transform: translateX(4px); }
+    .map-col { color: #fff; }
+    .map-arrow { color: var(--amethyst); }
+    .map-gen { color: #b6bce0; text-align: right; }
+
+    /* ── Backbone (stats over the radial sunburst) ── */
+    .backbone {
+      position: relative; overflow: hidden;
+      /* Contain the Sunburst's positive z-index so it can't paint over the page rails. */
+      isolation: isolate;
+      padding: 100px 0 210px;
+      border-bottom: 1px solid var(--frost);
+      background: linear-gradient(180deg, var(--white) 0%, var(--mist) 100%);
+    }
+    .backbone-inner { position: relative; z-index: 2; text-align: center; }
+    .backbone .sec-eyebrow { display: block; }
+    .backbone .sec-h2 { margin-top: 12px; }
+    .backbone .sec-lead { max-width: 560px; margin-left: auto; margin-right: auto; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 840px; margin: 56px auto 0; }
+    .stat { text-align: center; }
+    .stat-num { display: block; font-size: 46px; font-weight: 300; letter-spacing: -0.04em; color: var(--indigo); }
+    .stat-label { display: block; margin-top: 6px; font-size: 14px; color: var(--slate); }
+
+    /* ── How (mist band, bento step cards) ── */
+    .how { padding: 96px 0; background: var(--mist); }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 52px; }
+    .step {
+      position: relative; overflow: hidden;
+      background:
+        radial-gradient(120% 100% at 100% 0%, var(--periwinkle) 0%, transparent 46%),
+        var(--white);
+      border: 1px solid var(--frost); border-radius: var(--r-card); padding: 32px;
+      box-shadow: 0 6px 20px -14px rgba(16, 24, 40, 0.22);
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .step:hover {
+      border-color: var(--lilac-border);
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px -22px rgba(83, 58, 253, 0.4);
+    }
+    .step-n { font-family: var(--font-mono); font-size: 13px; color: var(--indigo); }
+    .step h3 { font-size: 20px; font-weight: 500; margin-top: 14px; letter-spacing: -0.02em; }
+    .step p { margin-top: 10px; font-size: 15px; line-height: 1.55; color: var(--steel); }
+    .step code { font-family: var(--font-mono); font-size: 0.86em; color: var(--indigo); }
+
+    /* ── CTA ── */
+    .cta { padding: 30px 0 96px; }
+    /* z-index lifts the card above the page rails so the frost line doesn't cut its dark edge. */
+    .cta-card { position: relative; z-index: 1; overflow: hidden; border-radius: 24px; background: var(--deep-violet); padding: 72px 48px; text-align: center; }
+    .cta-aurora {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.7;
+      background:
+        radial-gradient(40% 60% at 20% 30%, #ff7a45 0%, transparent 60%),
+        radial-gradient(44% 60% at 50% 50%, #b95fff 0%, transparent 62%),
+        radial-gradient(46% 64% at 82% 40%, #4b9fff 0%, transparent 64%);
+      filter: blur(46px) saturate(1.15);
+      animation: aurora-drift 15s ease-in-out infinite alternate;
+    }
+    .cta-content { position: relative; z-index: 2; }
+    .cta-content h2 { color: #fff; font-size: 38px; line-height: 1.08; letter-spacing: -0.028em; font-weight: 300; max-width: 620px; margin: 0 auto; }
+    .cta-content p { margin: 16px auto 30px; font-size: 17px; color: #d3d8f0; max-width: 460px; }
+
+    /* ── Footer ── */
+    .foot { border-top: 1px solid var(--frost); padding: 48px 0; background: var(--mist); }
+    .foot-inner { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .foot-brand p { margin-top: 12px; font-size: 14px; color: var(--slate); max-width: 320px; line-height: 1.5; }
+    .foot-links { display: flex; gap: 26px; align-items: flex-start; }
+    .foot-links a { font-size: 14px; color: var(--steel); transition: color 0.15s ease; }
+    .foot-links a:hover { color: var(--indigo); }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .hero { padding: 120px 0 72px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero-h1 { font-size: 44px; }
+      .hero-visual { justify-self: center; max-width: 440px; }
+      .engine-inner { grid-template-columns: 1fr; gap: 40px; }
+      .feat-grid, .steps { grid-template-columns: 1fr; }
+      .schema-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .sec-h2, .engine-h2, .cta-content h2 { font-size: 32px; }
+    }
+    @media (max-width: 620px) {
+      .nav-links { display: none; }
+      .rails { display: none; }
+      .hero-h1 { font-size: 36px; }
+      .hero-sub { font-size: 17px; }
+      .chip-1 { left: -12px; } .chip-2 { right: -8px; }
+      .cta-card { padding: 48px 24px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cta-aurora, .chip { animation: none; }
+    }
+  </style>
+</StripeBase>

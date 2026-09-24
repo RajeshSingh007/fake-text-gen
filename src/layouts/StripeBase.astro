@@ -1,0 +1,30 @@
+---
+import '../styles/stripe.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'mockforge — realistic test data from your schema',
+  description = 'Paste a schema. Get realistic, reproducible, referentially valid rows. Export to SQL, JSON or CSV.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

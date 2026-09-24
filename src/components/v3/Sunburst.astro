@@ -1,0 +1,358 @@
+---
+// Sunburst — the "backbone of your test data" hero-viz.
+// A monochrome-indigo radial line-burst rendered on a live WebGL canvas
+// (three.js), à la Stripe's data-viz. Rays fan from a bottom-centre origin,
+// fade indigo→pale toward their tips, shimmer, and carry light pulses that
+// travel outward along their length. three.js is dynamic-imported only when
+// the section scrolls into view, so it stays out of the initial page load.
+---
+
+<div class="sunburst" aria-hidden="true" data-sunburst>
+  <div class="sunburst-glow"></div>
+  <canvas class="burst-canvas"></canvas>
+</div>
+
+<style>
+  .sunburst {
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translateX(-50%);
+    width: min(1400px, 128%);
+    height: 560px;
+    z-index: 1;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(78% 100% at 50% 100%, #000 44%, transparent 92%);
+    mask-image: radial-gradient(78% 100% at 50% 100%, #000 44%, transparent 92%);
+  }
+  .sunburst-glow {
+    position: absolute;
+    left: 50%;
+    bottom: -120px;
+    transform: translateX(-50%);
+    width: 720px;
+    height: 480px;
+    z-index: 0;
+    background: radial-gradient(52% 52% at 50% 100%, rgba(83, 58, 253, 0.26), transparent 70%);
+    filter: blur(36px);
+  }
+  .burst-canvas {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  @media (max-width: 960px) {
+    .sunburst { height: 420px; width: 150%; }
+  }
+</style>
+
+<script>
+  import type * as THREE_NS from 'three';
+
+  type Ray = {
+    angle: number;
+    lenFactor: number;
+    phase: number;
+    bright: number;
+    dot: boolean;
+    swayAmp: number;
+    swaySpeed: number;
+    swayPhase: number;
+  };
+
+  const VERT = `
+    attribute float aAlong;
+    attribute float aPhase;
+    attribute float aBright;
+    varying float vAlong;
+    varying float vPhase;
+    varying float vBright;
+    void main() {
+      vAlong = aAlong;
+      vPhase = aPhase;
+      vBright = aBright;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `;
+
+  // Normal alpha blending over a light page: rays read as saturated indigo near
+  // the dense origin, fading to pale lilac at the tips. A pulse (a bright band
+  // travelling from core to tip) is the flowing motion; shimmer adds life.
+  const FRAG = `
+    precision mediump float;
+    uniform float uTime;
+    uniform vec3 uCore;
+    uniform vec3 uEdge;
+    uniform vec3 uPulse;
+    varying float vAlong;
+    varying float vPhase;
+    varying float vBright;
+    void main() {
+      float lenFade = 1.0 - vAlong * 0.9;
+      float shimmer = 0.6 + 0.4 * sin(uTime * 1.5 + vPhase * 6.2831);
+      float p = fract(uTime * 0.11 + vPhase);
+      float pulse = smoothstep(0.05, 0.0, abs(vAlong - p));
+      vec3 col = mix(uEdge, uCore, clamp(lenFade + pulse * 0.5, 0.0, 1.0));
+      col = mix(col, uPulse, pulse * 0.7);
+      float alpha = vBright * (0.11 + 0.42 * lenFade) * (0.6 + 0.4 * shimmer);
+      alpha += pulse * 0.55 * vBright;
+      gl_FragColor = vec4(col, alpha);
+    }
+  `;
+
+  const DOT_VERT = `
+    attribute float aPhase;
+    attribute float aBright;
+    uniform float uTime;
+    uniform float uScale;
+    varying float vTw;
+    varying float vBright;
+    void main() {
+      vBright = aBright;
+      vTw = 0.5 + 0.5 * sin(uTime * 1.9 + aPhase * 6.2831);
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = (2.0 + 2.4 * vTw) * uScale;
+    }
+  `;
+
+  const DOT_FRAG = `
+    precision mediump float;
+    uniform vec3 uCore;
+    varying float vTw;
+    varying float vBright;
+    void main() {
+      vec2 d = gl_PointCoord - vec2(0.5);
+      float r = dot(d, d);
+      if (r > 0.25) discard;
+      float edge = smoothstep(0.25, 0.0, r);
+      gl_FragColor = vec4(uCore, edge * vBright * (0.35 + 0.65 * vTw));
+    }
+  `;
+
+  function mulberry32(seed: number) {
+    return function () {
+      seed |= 0;
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  async function mount(root: HTMLElement) {
+    const canvas = root.querySelector<HTMLCanvasElement>('.burst-canvas');
+    if (!canvas) return;
+
+    const THREE = (await import('three')) as typeof THREE_NS;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    // Fixed fan geometry, seeded so it's stable across reloads.
+    const RAY_COUNT = 120;
+    const rnd = mulberry32(11);
+    const rays: Ray[] = Array.from({ length: RAY_COUNT }, (_, i) => {
+      const t = i / (RAY_COUNT - 1);
+      const angle = (8 + t * 164) * (Math.PI / 180) + (rnd() - 0.5) * 0.018;
+      const lenFactor = 0.62 + rnd() * 0.5;
+      return {
+        angle,
+        lenFactor,
+        phase: rnd(),
+        bright: 0.4 + rnd() * 0.6,
+        dot: rnd() > 0.3,
+        // Per-ray wander: each drifts around its base angle at its own speed,
+        // direction and amount — so the fan shimmers as if breathing.
+        swayAmp: (0.012 + rnd() * 0.045) * (rnd() > 0.5 ? 1 : -1),
+        swaySpeed: 0.25 + rnd() * 0.9,
+        swayPhase: rnd() * Math.PI * 2,
+      };
+    });
+    const dotRays = rays.filter((r) => r.dot);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(dpr);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(0, 1, 1, 0, -1000, 1000);
+    camera.position.z = 10;
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    // ── Rays as line segments (2 verts each): origin(0,0) → tip ──────────────
+    const lineGeo = new THREE.BufferGeometry();
+    const linePos = new Float32Array(RAY_COUNT * 2 * 3);
+    const lineAlong = new Float32Array(RAY_COUNT * 2);
+    const linePhase = new Float32Array(RAY_COUNT * 2);
+    const lineBright = new Float32Array(RAY_COUNT * 2);
+    rays.forEach((r, i) => {
+      lineAlong[i * 2] = 0;
+      lineAlong[i * 2 + 1] = 1;
+      linePhase[i * 2] = r.phase;
+      linePhase[i * 2 + 1] = r.phase;
+      lineBright[i * 2] = r.bright;
+      lineBright[i * 2 + 1] = r.bright;
+    });
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+    lineGeo.setAttribute('aAlong', new THREE.BufferAttribute(lineAlong, 1));
+    lineGeo.setAttribute('aPhase', new THREE.BufferAttribute(linePhase, 1));
+    lineGeo.setAttribute('aBright', new THREE.BufferAttribute(lineBright, 1));
+
+    const lineMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uCore: { value: new THREE.Color('#4b32f0') },
+        uEdge: { value: new THREE.Color('#b9b2f7') },
+        uPulse: { value: new THREE.Color('#8f7dff') },
+      },
+      vertexShader: VERT,
+      fragmentShader: FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+    });
+    const lines = new THREE.LineSegments(lineGeo, lineMat);
+    group.add(lines);
+
+    // ── Dot tips ─────────────────────────────────────────────────────────────
+    const dotGeo = new THREE.BufferGeometry();
+    const dotPos = new Float32Array(dotRays.length * 3);
+    const dotPhase = new Float32Array(dotRays.length);
+    const dotBright = new Float32Array(dotRays.length);
+    dotRays.forEach((r, i) => {
+      dotPhase[i] = r.phase;
+      dotBright[i] = r.bright;
+    });
+    dotGeo.setAttribute('position', new THREE.BufferAttribute(dotPos, 3));
+    dotGeo.setAttribute('aPhase', new THREE.BufferAttribute(dotPhase, 1));
+    dotGeo.setAttribute('aBright', new THREE.BufferAttribute(dotBright, 1));
+    const dotMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uScale: { value: dpr },
+        uCore: { value: new THREE.Color('#5a41ff') },
+      },
+      vertexShader: DOT_VERT,
+      fragmentShader: DOT_FRAG,
+      transparent: true,
+      depthWrite: false,
+    });
+    const dots = new THREE.Points(dotGeo, dotMat);
+    group.add(dots);
+
+    // Recompute pixel-space geometry for the current canvas size.
+    let maxLen = 1;
+    function positions(t: number) {
+      rays.forEach((r, i) => {
+        const angle = r.angle + r.swayAmp * Math.sin(t * r.swaySpeed + r.swayPhase);
+        const dome = Math.sin(angle); // vertical rays reach highest
+        const len = maxLen * (0.34 + 0.66 * dome) * r.lenFactor;
+        linePos[i * 6 + 0] = 0;
+        linePos[i * 6 + 1] = 0;
+        linePos[i * 6 + 2] = 0;
+        linePos[i * 6 + 3] = Math.cos(angle) * len;
+        linePos[i * 6 + 4] = Math.sin(angle) * len;
+        linePos[i * 6 + 5] = 0;
+      });
+      lineGeo.attributes.position.needsUpdate = true;
+      dotRays.forEach((r, i) => {
+        const angle = r.angle + r.swayAmp * Math.sin(t * r.swaySpeed + r.swayPhase);
+        const dome = Math.sin(angle);
+        const len = maxLen * (0.34 + 0.66 * dome) * r.lenFactor;
+        dotPos[i * 3 + 0] = Math.cos(angle) * len;
+        dotPos[i * 3 + 1] = Math.sin(angle) * len;
+        dotPos[i * 3 + 2] = 0;
+      });
+      dotGeo.attributes.position.needsUpdate = true;
+    }
+
+    function layout() {
+      const w = canvas.clientWidth || 1;
+      const h = canvas.clientHeight || 1;
+      renderer.setSize(w, h, false);
+      camera.left = 0;
+      camera.right = w;
+      camera.top = h;
+      camera.bottom = 0;
+      camera.updateProjectionMatrix();
+
+      group.position.set(w / 2, 6, 0);
+      maxLen = h * 0.82;
+      positions(0);
+    }
+    layout();
+
+    let raf = 0;
+    let running = false;
+    const start = performance.now();
+
+    function frame(now: number) {
+      const t = (now - start) / 1000;
+      lineMat.uniforms.uTime.value = t;
+      dotMat.uniforms.uTime.value = t;
+      positions(t); // per-ray wander
+      // Gentle sway + breathing, pivoting at the burst origin.
+      group.rotation.z = Math.sin(t * 0.16) * 0.03;
+      const s = 1 + Math.sin(t * 0.5) * 0.02;
+      group.scale.set(s, s, 1);
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(frame);
+    }
+
+    function play() {
+      if (running || reduced) return;
+      running = true;
+      raf = requestAnimationFrame(frame);
+    }
+    function pause() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    renderer.render(scene, camera); // paint one static frame immediately
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        layout();
+        if (!running) renderer.render(scene, camera);
+      }, 150);
+    });
+
+    // Only animate while the burst is on screen and the tab is visible.
+    const vis = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) e.isIntersecting ? play() : pause();
+      },
+      { threshold: 0.05 },
+    );
+    vis.observe(root);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pause();
+      else play();
+    });
+  }
+
+  // Defer three.js until the section is near the viewport.
+  const roots = document.querySelectorAll<HTMLElement>('[data-sunburst]');
+  roots.forEach((root) => {
+    const io = new IntersectionObserver(
+      (entries, obs) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            obs.disconnect();
+            mount(root);
+          }
+        }
+      },
+      { rootMargin: '300px' },
+    );
+    io.observe(root);
+  });
+</script>

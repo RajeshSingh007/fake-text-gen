@@ -1,0 +1,61 @@
+---
+// HeroWave — the flowing silk-ribbon backdrop for the v3 hero.
+// The approved wave.webp is shown directly as an <img> (Astro fingerprints it),
+// with a faint, slow breathing/drift so it feels alive without any warp.
+// Pure CSS — zero JS, no three.js.
+import waveImg from '../../assets/wave.webp';
+---
+
+<div class="hero-wave" aria-hidden="true">
+  <img
+    class="hero-wave-img"
+    src={waveImg.src}
+    width={waveImg.width}
+    height={waveImg.height}
+    alt=""
+    decoding="async"
+    fetchpriority="high"
+  />
+</div>
+
+<style>
+  .hero-wave {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    
+  }
+  .hero-wave-img {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    height: 110%;
+    width: auto;
+    max-width: none;
+    display: block;
+    transform: translateY(-50%);
+    transform-origin: right center;
+    will-change: transform;
+    /* Faint breathing/drift only — no ripple/warp. */
+    animation: hero-wave-flow 5s ease-in-out infinite;
+  }
+
+  @keyframes hero-wave-flow {
+    0%   { transform: translateY(-50%) scale(1.01); }
+    50%  { transform: translateY(-52%) translateX(-0.8%) scale(1.03); }
+    100% { transform: translateY(-50%) scale(1.01); }
+  }
+
+  @media (max-width: 960px) {
+    .hero-wave-img { height: 90%; right: -5%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-wave-img {
+      animation: none;
+      transform: translateY(-50%) scale(1.01);
+    }
+  }
+</style>
