@@ -49,7 +49,18 @@ import waveImg from '../../assets/wave.webp';
   }
 
   @media (max-width: 960px) {
-    .hero-wave-img { height: 90%; right: -5%; }
+    /* On the tall, narrow mobile hero a height-scaled landscape ribbon blows up
+       and overflows. Instead, bound the wave to the lower band (behind the mock
+       card) and let it cover that box, fading softly into the copy above. */
+    .hero-wave { top: auto; bottom: 0; height: 58%; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 26%); mask-image: linear-gradient(to bottom, transparent 0%, #000 26%); }
+    .hero-wave-img {
+      top: 0; right: 0;
+      height: 100%; width: 100%;
+      object-fit: cover;
+      object-position: 72% center;
+      transform: none;
+      animation: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
