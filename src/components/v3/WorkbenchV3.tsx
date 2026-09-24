@@ -21,7 +21,7 @@ export default function WorkbenchV3() {
   const [dialect, setDialect] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const [count, setCount] = useState(1000);
+  const [count, setCount] = useState(10000);
   const [seed, setSeed] = useState(42);
   const [locale, setLocale] = useState('en');
 
