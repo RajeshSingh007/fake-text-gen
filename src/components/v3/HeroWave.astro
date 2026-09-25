@@ -49,10 +49,10 @@ import waveImg from '../../assets/wave.webp';
   }
 
   @media (max-width: 960px) {
-    /* On the tall, narrow mobile hero a height-scaled landscape ribbon blows up
-       and overflows. Instead, bound the wave to the lower band (behind the mock
-       card) and let it cover that box, fading softly into the copy above. */
-    .hero-wave { top: auto; bottom: 0; height: 58%; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 26%); mask-image: linear-gradient(to bottom, transparent 0%, #000 26%); }
+    /* On mobile the mock card is reordered to the TOP of the hero, so anchor the
+       wave to the upper band (behind the card) and fade its lower edge softly
+       into the copy below. */
+    .hero-wave { top: 0; bottom: auto; height: 58%; -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%); }
     .hero-wave-img {
       top: 0; right: 0;
       height: 100%; width: 100%;
