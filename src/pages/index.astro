@@ -113,7 +113,7 @@ const USE_CASES = [
           <span class="hero-em">at the scale you need.</span>
         </h1>
         <p class="hero-sub">
-          Paste a database schema. mockforge maps every column to a realistic
+          <span class="hero-sub-lead">Paste a database schema.</span> mockforge maps every column to a realistic
           generator, resolves foreign keys in dependency order, and streams
           reproducible rows you can export to SQL, JSON or CSV.
         </p>
@@ -124,10 +124,10 @@ const USE_CASES = [
           </a>
           <a class="stx-btn stx-btn-secondary stx-btn-lg" href="#engine">See the engine</a>
         </div>
-        <div class="hero-stat">
-          <span class="hero-stat-num">1M</span>
-          <span class="hero-stat-label">rows per export · resolved in the browser, nothing leaves your machine</span>
-        </div>
+        <p class="hero-stat">
+          <span class="hero-stat-lead">1M rows per export.</span>
+          <span class="hero-stat-cont"> Resolved in the browser — nothing leaves your machine.</span>
+        </p>
       </div>
 
       <!-- Floating frosted product card over the aurora -->
@@ -477,13 +477,14 @@ const USE_CASES = [
     .hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; padding-left: 80px;}
     .hero-copy { max-width: 540px; }
     .stx-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--indigo); }
-    .hero-h1 { font-size: 56px; line-height: 1.03; letter-spacing: -0.03em; font-weight: 300; margin: 22px 0 0; }
+    .hero-h1 { font-size: 56px; line-height: 1.03; letter-spacing: -0.03em; font-weight: 400; margin: 22px 0 0; }
     .hero-em { color: var(--indigo); }
-    .hero-sub { margin-top: 22px; font-size: 19px; line-height: 1.5; color: var(--steel); font-weight: 400; }
+    .hero-sub { margin-top: 22px; font-size: 19px; line-height: 1.5; color: var(--slate); font-weight: 400; }
+    .hero-sub-lead { color: var(--ink); font-weight: 500; }
     .hero-cta { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
-    .hero-stat { display: flex; align-items: baseline; gap: 12px; margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--frost); }
-    .hero-stat-num { font-size: 34px; font-weight: 300; letter-spacing: -0.03em; color: var(--ink); }
-    .hero-stat-label { font-size: 13.5px; line-height: 1.4; color: var(--slate); max-width: 300px; }
+    .hero-stat { margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--frost); max-width: 440px; font-size: 21px; line-height: 1.45; letter-spacing: -0.01em; }
+    .hero-stat-lead { color: var(--ink); font-weight: 500; }
+    .hero-stat-cont { color: var(--slate); font-weight: 400; }
 
     /* Floating product mock */
     .hero-visual { position: relative; z-index: 2; justify-self: end; width: 100%; max-width: 480px; }
@@ -748,8 +749,7 @@ const USE_CASES = [
          mobile layout (badge, headline, sub, CTAs and stat all centered). */
       .hero-copy { max-width: none; text-align: center; }
       .hero-cta { justify-content: center; }
-      .hero-stat { flex-direction: column; align-items: center; text-align: center; gap: 4px; }
-      .hero-stat-label { max-width: 340px; }
+      .hero-stat { text-align: center; margin-inline: auto; max-width: 400px; font-size: 19px; }
       .hero-h1 { font-size: 44px; }
       .hero-visual { order: -1; justify-self: center; margin-inline: auto; width: 100%; max-width: 420px; }
       .engine-inner { grid-template-columns: 1fr; gap: 40px; }
