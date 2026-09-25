@@ -9,6 +9,14 @@ import './workbench-v3.css';
 
 const PREVIEW_ROWS = 100;
 const GENERATOR_OPTIONS = ALL_GENERATORS.map((g) => ({ value: g, label: GENERATOR_LABELS[g] }));
+// `foreignKey` and `autoIncrement` are structural: they only produce sensible
+// values when the schema itself declares the FK target or the PK. So they're not
+// offered as manual picks — a column with no declared FK target would otherwise
+// fall back to lorem text. PK / real-FK columns skip the dropdown entirely (locked).
+const STRUCTURAL_KINDS: GeneratorKind[] = ['foreignKey', 'autoIncrement'];
+const EDITABLE_GENERATOR_OPTIONS = GENERATOR_OPTIONS.filter(
+  (o) => !STRUCTURAL_KINDS.includes(o.value as GeneratorKind),
+);
 const LOCALE_SELECT = LOCALE_OPTIONS.map(({ key, label }) => ({ value: key, label }));
 
 /**
@@ -309,7 +317,12 @@ export default function WorkbenchV3() {
                     {table.name}
                     <span className="stx-muted">{table.columns.length} cols</span>
                   </div>
-                  {table.columns.map((col) => (
+                  {table.columns.map((col) => {
+                    // PK and real-FK columns are structurally determined — their
+                    // generator (auto-increment / foreign key) is dictated by the
+                    // schema, so we lock it with a read-only label instead of a picker.
+                    const locked = col.primaryKey || !!col.foreignKey;
+                    return (
                     <div className="stx-col-row" key={col.name}>
                       <div className="stx-col-meta">
                         <span className="stx-col-name" title={col.name}>{col.name}</span>
@@ -327,16 +340,27 @@ export default function WorkbenchV3() {
                           <span className="stx-tag stx-tag-uniq">UNIQUE</span>
                         )}
                       </div>
-                      <Select
-                        value={col.generator}
-                        options={GENERATOR_OPTIONS}
-                        onChange={(v) => handleOverride(table.name, col.name, v as GeneratorKind)}
-                        ariaLabel={`Generator for ${table.name}.${col.name}`}
-                        triggerClassName="sel-stx sel-stx-compact"
-                        menuClassName="sel-menu-stx"
-                      />
+                      {locked ? (
+                        <span
+                          className="stx-col-locked"
+                          title="Set by the schema — this column's values come from its key relationship"
+                        >
+                          {GENERATOR_LABELS[col.generator]}
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </span>
+                      ) : (
+                        <Select
+                          value={col.generator}
+                          options={EDITABLE_GENERATOR_OPTIONS}
+                          onChange={(v) => handleOverride(table.name, col.name, v as GeneratorKind)}
+                          ariaLabel={`Generator for ${table.name}.${col.name}`}
+                          triggerClassName="sel-stx sel-stx-compact"
+                          menuClassName="sel-menu-stx"
+                        />
+                      )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ))
             ) : (

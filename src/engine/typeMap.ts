@@ -64,7 +64,7 @@ function matchByName(n: string): GeneratorKind | null {
   return null;
 }
 
-function matchByType(sqlType: string): GeneratorKind {
+export function matchByType(sqlType: string): GeneratorKind {
   const t = sqlType.toLowerCase();
   if (/(bool|bit)/.test(t)) return 'boolean';
   if (/(timestamp|datetime)/.test(t)) return 'datetime';

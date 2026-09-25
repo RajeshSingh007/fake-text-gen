@@ -9,6 +9,7 @@ import type {
 } from './types';
 import { seededRandom, pick, type Rng } from './prng';
 import { topoSortTables } from './topoSort';
+import { matchByType } from './typeMap';
 
 // Fixed anchor for relative date generators so output depends only on the seed,
 // not on the wall clock. Without this, faker.date.recent() drifts every run.
@@ -170,7 +171,14 @@ function suffixUnique(base: string, n: number): string {
 
 function rawValue(col: Column, ctx: Ctx): string | number | boolean | null {
   const { faker, rng } = ctx;
-  const kind: GeneratorKind = col.generator;
+  // If a column is set to `foreignKey` but has no resolved target (e.g. the user
+  // picked "Foreign key" on a plain PK/INT column), there's no parent pool to
+  // draw from. Fall back to the column's declared SQL type so an INT yields
+  // integers, not lorem words. (The UI also blocks this pick — this is a safety net.)
+  const kind: GeneratorKind =
+    col.generator === 'foreignKey' && !col.foreignKey
+      ? matchByType(col.sqlType)
+      : col.generator;
 
   switch (kind) {
     case 'fullName': return faker.person.fullName();

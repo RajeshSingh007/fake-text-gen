@@ -206,6 +206,16 @@
 .stx-tag-fk { color: #7a4d00; background: #fdf3dc; }
 .stx-tag-uniq { color: var(--steel); background: var(--frost); }
 
+/* Locked generator label for PK / real-FK columns (no dropdown — schema-determined). */
+.stx-col-locked {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  max-width: 172px; padding: 6px 11px;
+  font-size: 13px; color: var(--slate);
+  background: var(--mist); border: 1px dashed var(--frost); border-radius: 8px;
+  cursor: default; white-space: nowrap;
+}
+.stx-col-locked svg { opacity: 0.5; flex: none; }
+
 /* ── Preview pane ────────────────────────────────────────── */
 .stx-tabs { display: flex; gap: 4px; overflow-x: auto; }
 .stx-tabs button {
